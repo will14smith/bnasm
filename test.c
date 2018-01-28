@@ -55,6 +55,33 @@ void test_bucket4() {
 	assert(get_bucket(&date, &asset) == 4);
 }
 
+void test_add_to_bucket() {
+	date_t date = { 2018, 1, 1 };
+
+	asset_t asset1 = { "Equity1", "Equity",  1000 };
+	asset_t asset2 = { "Future1", "Future",  2000, { 2018, 6, 1 } };
+	asset_t asset3 = { "Future2", "Future",  3000, { 2038, 6, 1 } };
+	asset_t asset4 = { "Future3", "Future", -6000, { 2038, 6, 1 } };
+
+	bucket_t buckets[4] = {
+		{ 1, 0 },
+		{ 2, 0 },
+		{ 3, 0 },
+		{ 4, 0 },
+	};
+
+	add_to_bucket(&date, &asset1, buckets);
+	add_to_bucket(&date, &asset2, buckets);
+	add_to_bucket(&date, &asset3, buckets);
+	add_to_bucket(&date, &asset4, buckets);
+
+	assert(buckets[0].market_value == 2000);
+	assert(buckets[1].market_value == 0);
+	assert(buckets[2].market_value == 0);
+	assert(buckets[3].market_value == -3000);
+}
+
+
 int main() {
 	test_expires_in();
 
@@ -64,6 +91,8 @@ int main() {
 	test_bucket2();
 	test_bucket3();
 	test_bucket4();
+
+	test_add_to_bucket();
 
 	return 0;
 }

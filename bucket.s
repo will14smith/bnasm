@@ -1,4 +1,5 @@
 .global get_bucket
+.global add_to_bucket
 
 get_bucket:
 	// rdi = date_t* data_date
@@ -18,7 +19,7 @@ get_bucket:
 	mov $-1, %rax
 	ret
 
-_is_future:
+	_is_future:
 	// expires_in(data_date, &asset->maturity_date, 2) => 1
 	mov %r12, %rdi
 	lea 20(%r13), %rsi
@@ -31,7 +32,7 @@ _is_future:
 	mov $1, %rax
         ret
 
-_bucket_2:
+	_bucket_2:
 	// expires_in(data_date, &asset->maturity_date, 7) => 2
         mov %r12, %rdi
         lea 20(%r13), %rsi
@@ -44,7 +45,7 @@ _bucket_2:
         mov $2, %rax
         ret
 
-_bucket_3:
+	_bucket_3:
 	// expires_in(data_date, &asset->maturity_date, 15) => 3
         mov %r12, %rdi
         lea 20(%r13), %rsi
@@ -57,10 +58,13 @@ _bucket_3:
         mov $3, %rax
         ret
 
-_bucket_4:
+	_bucket_4:
 	// else => 4
 
 	mov $4, %rax
+	ret
+
+add_to_bucket:
 	ret
 
 .data
