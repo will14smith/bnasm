@@ -32,9 +32,32 @@ _is_future:
         ret
 
 _bucket_2:
-
 	// expires_in(data_date, &asset->maturity_date, 7) => 2
+        mov %r12, %rdi
+        lea 20(%r13), %rsi
+        mov $7, %rdx
+        call expires_in
+
+        cmp $0, %rax
+        je _bucket_3
+
+        mov $2, %rax
+        ret
+
+_bucket_3:
 	// expires_in(data_date, &asset->maturity_date, 15) => 3
+        mov %r12, %rdi
+        lea 20(%r13), %rsi
+        mov $15, %rdx
+        call expires_in
+
+        cmp $0, %rax
+        je _bucket_4
+
+        mov $3, %rax
+        ret
+
+_bucket_4:
 	// else => 4
 
 	mov $4, %rax
