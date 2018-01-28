@@ -4,6 +4,8 @@
 get_bucket:
 	// rdi = date_t* data_date
 	// rsi = asset_t* asset
+	push %r12
+	push %r13
 
         mov %rdi, %r12
         mov %rsi, %r13
@@ -17,7 +19,7 @@ get_bucket:
 	je _is_future
 
 	mov $-1, %rax
-	ret
+	jmp _get_bucket_return
 
 	_is_future:
 	// expires_in(data_date, &asset->maturity_date, 2) => 1
@@ -30,7 +32,7 @@ get_bucket:
 	je _bucket_2
 
 	mov $1, %rax
-        ret
+	jmp _get_bucket_return
 
 	_bucket_2:
 	// expires_in(data_date, &asset->maturity_date, 7) => 2
@@ -43,7 +45,7 @@ get_bucket:
         je _bucket_3
 
         mov $2, %rax
-        ret
+	jmp _get_bucket_return
 
 	_bucket_3:
 	// expires_in(data_date, &asset->maturity_date, 15) => 3
@@ -56,15 +58,45 @@ get_bucket:
         je _bucket_4
 
         mov $3, %rax
+        pop %r13
+        pop %r12
         ret
 
 	_bucket_4:
 	// else => 4
 
 	mov $4, %rax
+	_get_bucket_return:
+        pop %r13
+        pop %r12
 	ret
 
 add_to_bucket:
+	// rdi = date_t* data_date
+        // rsi = asset_t* asset
+	// rdx = bucket_t buckets[4]
+
+	push %r12
+	push %r13
+
+	mov %rsi, %r12
+	mov %rdx, %r13
+
+	// rax = get_bucket(data_date, asset)
+	call get_bucket
+
+	// rax <= 0 => return
+	cmp $0, %rax
+	jle _add_to_bucket_return
+
+	// buckets[rax - 1].market_value += asset->market_value
+	sub $1, %rax
+	mov 16(%r12), %edi
+	add %edi, 4(%r13, %rax, 8)
+
+	_add_to_bucket_return:
+	pop %r13
+        pop %r12
 	ret
 
 .data
